@@ -1,0 +1,15 @@
+{
+  "note": "Starter subset of Bangladesh districts and a few thanas. Replace with the full canonical list before going live — an unresolved district means the parcel is undeliverable. Source: Bangladesh Post / bdapps geo datasets.",
+  "districts": {
+    "Dhaka": ["Gulshan", "Banani", "Dhanmondi", "Mirpur", "Mohammadpur", "Uttara", "Motijheel", "Tejgaon", "Badda", "Khilgaon"],
+    "Chattogram": ["Kotwali", "Pahartali", "Panchlaish", "Halishahar", "Agrabad"],
+    "Gazipur": ["Tongi", "Gazipur Sadar", "Kaliakair"],
+    "Narayanganj": ["Narayanganj Sadar", "Fatullah", "Siddhirganj"],
+    "Sylhet": ["Sylhet Sadar", "Beanibazar", "Zakiganj"],
+    "Khulna": ["Khulna Sadar", "Sonadanga", "Khalishpur"],
+    "Rajshahi": ["Boalia", "Rajpara", "Motihar"],
+    "Cumilla": ["Comilla Sadar", "Laksam", "Daudkandi"],
+    "Bogura": ["Bogura Sadar", "Sherpur", "Sariakandi"],
+    "Rangpur": ["Rangpur Sadar", "Pirganj", "Badarganj"]
+  }
+}
