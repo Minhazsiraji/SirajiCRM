@@ -30,14 +30,24 @@ number honestly, and to reduce it.
 
 ```bash
 pnpm install
-copy .env.example .env          # Windows CMD
-# cp .env.example .env          # macOS / Linux
+cp .env.example .env            # macOS / Linux / Cloud Shell
+# copy .env.example .env        # Windows CMD
 
-pnpm up                          # starts postgres + redis
-pnpm db:migrate                  # tables, then RLS, then attribution views
-pnpm db:seed                     # one demo tenant + knowledge base
+pnpm setup                       # build libs, start postgres+redis, migrate, seed
 pnpm dev                         # api on :3001, web on :3000
 ```
+
+`pnpm setup` is the one-shot equivalent of the four steps below, in order:
+
+```bash
+pnpm build:libs                  # compile @orderpilot/shared and @orderpilot/db
+pnpm db:up                       # starts postgres + redis (needs Docker)
+pnpm db:migrate                  # tables, then RLS, then attribution views
+pnpm db:seed                     # one demo tenant + knowledge base
+```
+
+Note: it is `pnpm db:up`, not `pnpm up` — the bare word `up` is a reserved
+pnpm command (it means "update dependencies"), so the service script is namespaced.
 
 In a second terminal, expose the API so Meta can reach it:
 
@@ -55,8 +65,8 @@ Copy the printed HTTPS URL. In the Meta App dashboard set the callback URL to
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | api + web with hot reload |
-| `pnpm up` / `pnpm down` | start / stop local postgres and redis |
+| `pnpm dev` | build libs, then api + web with hot reload |
+| `pnpm db:up` / `pnpm db:down` | start / stop local postgres and redis |
 | `pnpm db:generate` | generate a migration from schema changes |
 | `pnpm db:migrate` | apply migrations |
 | `pnpm typecheck` | full workspace typecheck |
