@@ -42,7 +42,25 @@ are admins/testers of the app. That's expected for now.
 
 ---
 
-## Phase 2 — Business Verification (start immediately; it runs in the background)
+## Do you need Business Verification YET? — No.
+
+You can build, test, demo, and collect training messages entirely in the app's
+**Development mode**, with **no** Business Verification:
+
+- In Development mode the app can message, and read conversations for, anyone who
+  has a **role on the app** (Admin / Developer / Tester) — set at
+  developers.facebook.com → your App → **App Roles**. Your own account is already
+  an Admin, so you can test immediately with your own Page.
+- Note: a **Page manager / Meta Business Suite role is NOT the same** as an app
+  role. To let someone test the bot, add them under **App Roles**, not just as a
+  Page manager.
+
+Business Verification + full App Review is only required to message the
+**general public** (Advanced Access to `pages_messaging`). Defer it until the
+product works and you're ready for real customers. Do everything below when you
+reach that point — not before.
+
+## Phase 2 — Business Verification (only when going live; runs in the background)
 
 - [ ] In **Business Settings** → **Security Center** (or "Business
       verification") → **Start verification**.
