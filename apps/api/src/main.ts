@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
@@ -9,7 +9,8 @@ async function bootstrap() {
   // bytes Meta signed. Re-serialising the parsed JSON would change them.
   const app = await NestFactory.create(AppModule, { rawBody: true });
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  // Input validation is done with Zod at the boundaries (webhook payloads via
+  // the shared contracts, env via config/env.ts), so no class-validator pipe.
 
   const config = app.get(ConfigService);
   app.enableCors({ origin: config.get('WEB_URL'), credentials: true });
