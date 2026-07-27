@@ -14,8 +14,12 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
 
-  META_APP_SECRET: z.string().min(1),
-  META_VERIFY_TOKEN: z.string().min(1),
+  // Optional so the app boots for local dashboard / manual-inbox work before
+  // any Meta credentials exist. The webhook routes still fail closed at request
+  // time — MetaSignatureGuard and the verify handler call getOrThrow — so an
+  // unconfigured deployment can never accept a forged or unverified webhook.
+  META_APP_SECRET: z.string().optional(),
+  META_VERIFY_TOKEN: z.string().optional(),
   META_GRAPH_VERSION: z.string().default('v21.0'),
 
   FB_PAGE_ID: z.string().optional(),

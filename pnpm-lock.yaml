@@ -118,6 +118,9 @@ importers:
       '@orderpilot/shared':
         specifier: workspace:*
         version: link:../shared
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
       drizzle-orm:
         specifier: ^0.36.0
         version: 0.36.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1)

@@ -1,6 +1,7 @@
-import { eq } from 'drizzle-orm';
+import './load-env.js';
+import { eq, sql } from 'drizzle-orm';
 import { db, withTenant, closeDb } from './client.js';
-import { tenants, users, kbEntries } from './schema.js';
+import { tenants, users, kbEntries, contacts, conversations, orders } from './schema.js';
 
 /**
  * One demo tenant with a knowledge base, so the guardrail has grounded numbers
@@ -74,10 +75,66 @@ async function main() {
           set: { answer: entry.answer, numericFacts: entry.numericFacts, updatedAt: new Date() },
         });
     }
+
+    await seedDemoSales(tx, tenant.id);
   });
 
   console.log('seed complete');
+  console.log(`\nDEMO_TENANT_ID=${tenant.id}`);
+  console.log('(the dashboard auto-detects this in dev, so you do not need to set it)\n');
   await closeDb();
+}
+
+// Two ad creatives with deliberately different economics, so the dashboard tells
+// the story the product exists to tell: the "cheap reach" ad has a far lower cost
+// per message but a much higher cost per DELIVERED order and a brutal return rate.
+// Idempotent — only runs when this tenant has no orders yet.
+const DEMO_ADS = [
+  { adId: 'AD_DEMO_RAIN', adName: 'Rainy Season Promo', spend: 1800, delivered: 3, returned: 1 },
+  { adId: 'AD_DEMO_CHEAP', adName: 'Cheap Reach Boost', spend: 2000, delivered: 1, returned: 3 },
+];
+
+async function seedDemoSales(tx: Awaited<ReturnType<typeof db>>, tenantId: string): Promise<void> {
+  const [{ n }] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(orders)
+    .where(eq(orders.tenantId, tenantId));
+  if (n > 0) return; // already seeded
+
+  for (const ad of DEMO_ADS) {
+    await tx.execute(sql`
+      INSERT INTO ad_spend (tenant_id, ad_id, ad_name, day, spend)
+      VALUES (${tenantId}, ${ad.adId}, ${ad.adName}, current_date, ${ad.spend})
+      ON CONFLICT (tenant_id, ad_id, day) DO NOTHING
+    `);
+
+    const makeOrder = async (state: 'delivered' | 'returned') => {
+      const [contact] = await tx
+        .insert(contacts)
+        .values({ tenantId, name: 'Demo Buyer', district: 'Dhaka', phoneE164: '+8801700000000' })
+        .returning({ id: contacts.id });
+      const [conv] = await tx
+        .insert(conversations)
+        .values({ tenantId, contactId: contact.id, channel: 'messenger', adId: ad.adId, state: 'converted' })
+        .returning({ id: conversations.id });
+      await tx.insert(orders).values({
+        tenantId,
+        contactId: contact.id,
+        conversationId: conv.id,
+        variant: 'single',
+        qty: 1,
+        unitPrice: '850',
+        deliveryFee: '60',
+        total: '910',
+        state,
+        deliveredAt: state === 'delivered' ? new Date() : null,
+        returnedAt: state === 'returned' ? new Date() : null,
+      });
+    };
+
+    for (let i = 0; i < ad.delivered; i++) await makeOrder('delivered');
+    for (let i = 0; i < ad.returned; i++) await makeOrder('returned');
+  }
 }
 
 main().catch(async (err) => {

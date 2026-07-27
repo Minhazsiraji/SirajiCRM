@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
+import { resolve } from 'node:path';
 import { validateEnv } from './config/env.js';
+import { DevController } from './dev.controller.js';
 import { MessengerModule } from './modules/messenger/messenger.module.js';
 import { WhatsappModule } from './modules/whatsapp/whatsapp.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
@@ -21,7 +23,13 @@ function redisConnection() {
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+    // The single .env lives at the repo root; the API runs from apps/api, so
+    // point ConfigModule up two levels (falling back to a local .env).
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validate: validateEnv,
+      envFilePath: [resolve(process.cwd(), '../../.env'), '.env'],
+    }),
     BullModule.forRoot({ connection: redisConnection() }),
     MessengerModule,
     WhatsappModule,
@@ -30,6 +38,6 @@ function redisConnection() {
     CourierModule,
     ReportingModule,
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, DevController],
 })
 export class AppModule {}
